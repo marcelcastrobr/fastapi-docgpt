@@ -68,6 +68,21 @@ QDRANT_API_KEY=your-qdrant-api-key
  - ```QDRANT_URL:``` The URL to your Qdrant instance.
  - ```QDRANT_API_KEY:``` The API key for Qdrant (if required).
 
+
+
+If you are using Azure OpenAI you would need:
+
+```
+AZURE_OPENAI_API_KEY=your-openai-api-key
+AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint(e.g. https://<resource-name>.openai.azure.com/)
+EMBEDDING=your-azure-embedding-deployment
+
+QDRANT_URL=your-qdrant-url (e.g. http://localhost:6333)
+QDRANT_API_KEY=your-qdrant-api-key
+```
+
+
+
 #### Step 5: Run the FastAPI Application
 Start the FastAPI server locally by running the following command:
 ```
@@ -108,7 +123,7 @@ Accepts a question and returns an answer based on the content stored in the vect
     "question": "What is the summary of this document?"
     }
     ```
-**Response:**
+    **Response:**
 
 **Success:** ```{ "answer": "<response-from-the-document>" }```
 **Error:** ```{ "detail": "Failed to retrieve answer: <error-message>" }```

@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import tempfile
 import os
+from langchain_openai import AzureOpenAIEmbeddings
+
 
 # Import the necessary functions from utils.py
 from utils import process_pdf, send_to_qdrant, qdrant_client, qa_ret, OpenAIEmbeddings
@@ -40,11 +42,23 @@ async def upload_pdf(file: UploadFile = File(...)):
         # Process the PDF to get document chunks and embeddings
         document_chunks = process_pdf(temp_file_path)
 
-        # Create the embedding model (e.g., OpenAIEmbeddings)
-        embedding_model = OpenAIEmbeddings(
-            openai_api_key=os.getenv("OPENAI_API_KEY"),  # Assuming you're using env vars
-            model="text-embedding-ada-002"
-        )
+        # Check if Azure OpenAI API key is provided
+        azure_openai_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        if azure_openai_api_key:
+            print("Use Azure OpenAI API")
+            # Create the embedding model for Azure OpenAI
+            embedding_model = AzureOpenAIEmbeddings(
+                openai_api_key=azure_openai_api_key,
+                model="text-embedding-ada-002",
+                deployment=os.getenv("EMBEDDING"),
+            )
+        else:
+            print("Use OpenAI API")
+            # Create the embedding model for OpenAI
+            embedding_model = OpenAIEmbeddings(
+                openai_api_key=os.getenv("OPENAI_API_KEY"),
+                model="text-embedding-ada-002"
+            )
 
         # Send the document chunks (with embeddings) to Qdrant
         success = send_to_qdrant(document_chunks, embedding_model)
