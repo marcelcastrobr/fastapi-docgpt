@@ -2,15 +2,25 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Qdrant
 from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import AzureOpenAIEmbeddings
 from qdrant_client import QdrantClient
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough, RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from langchain_openai import AzureChatOpenAI
+import logging
 import os
+from dotenv import load_dotenv
+from langfuse.callback import CallbackHandler
+
+
+
+# Create a logger for this module
+logger = logging.getLogger(__name__)
+
 
 # Load environment variables (if needed)
-from dotenv import load_dotenv
 load_dotenv()
 
 # API keys and URLs from environment variables
@@ -58,9 +68,20 @@ def send_to_qdrant(documents, embedding_model):
 # Function to initialize the Qdrant client and return the vector store object
 def qdrant_client():
     """Initialize Qdrant client and return the vector store."""
-    embedding_model = OpenAIEmbeddings(
-        openai_api_key=OPENAI_API_KEY, model="text-embedding-ada-002"
-    )
+    azure_openai_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    if azure_openai_api_key:
+            print("Use Azure OpenAI API")
+            # Create the embedding model for Azure OpenAI
+            embedding_model = AzureOpenAIEmbeddings(
+                openai_api_key=azure_openai_api_key,
+                model="text-embedding-ada-002",
+                deployment=os.getenv("EMBEDDING"),
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            )
+    else:
+        embedding_model = OpenAIEmbeddings(
+        openai_api_key=OPENAI_API_KEY, model="text-embedding-ada-002")
+    
     qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
     qdrant_store = Qdrant(
         client=qdrant_client,
@@ -99,22 +120,85 @@ def qa_ret(qdrant_store, input_query):
             search_type="similarity", search_kwargs={"k": 4}
         )
 
+        # Langfuse callback
+        user_id = f"qdrant"
+        langfuse_handler = get_callback_handler(user_id)
+
         setup_and_retrieval = RunnableParallel(
             {"context": retriever, "question": RunnablePassthrough()}
-        )
+        ).with_config({"callbacks": [langfuse_handler]})
 
-        model = ChatOpenAI(
-            model_name="gpt-4o-mini",
-            temperature=0.7,
-            openai_api_key=OPENAI_API_KEY,
-            max_tokens=150
-        )
+        # Get LLM model
+        model = get_llm_model()
 
         output_parser = StrOutputParser()
 
         rag_chain = setup_and_retrieval | prompt | model | output_parser
-        response = rag_chain.invoke(input_query)
+        response = rag_chain.invoke(input_query, config={"callbacks": [langfuse_handler]})
         return response
 
     except Exception as ex:
         return f"Error: {str(ex)}"
+
+
+# Function that return langfuse callback handler
+def get_callback_handler(username):
+
+    try:
+        logger.debug(f"Landfuse: getting public key {os.environ['LANGFUSE_PUBLIC_KEY']} and host: {os.environ['LANGFUSE_HOST']}")
+        langfuse_handler = CallbackHandler(user_id=username)
+        langfuse_handler.auth_check()
+        return langfuse_handler
+    except KeyError as e:
+        logger.error(f"Environment variable {e} not found")
+        return ""
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        return ""
+
+# Get embedding_model to be used
+def get_embedding_model():
+    azure_openai_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    if azure_openai_api_key:
+            print("Use Azure OpenAI API")
+            # Create the embedding model for Azure OpenAI
+            embedding_model = AzureOpenAIEmbeddings(
+                openai_api_key=azure_openai_api_key,
+                model="text-embedding-ada-002",
+                deployment=os.getenv("EMBEDDING"),
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            )
+    else:
+        print("Use OpenAI API")
+        # Create the embedding model for OpenAI
+        embedding_model = OpenAIEmbeddings(
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            model="text-embedding-ada-002"
+        )
+    return embedding_model
+
+
+# Get llm model to be used
+def get_llm_model():
+    azure_openai_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+    if azure_openai_api_key:
+            print("Use Azure OpenAI API")
+            # Create the embedding model for Azure OpenAI
+            model = AzureChatOpenAI(
+                temperature=0,
+                openai_api_key=azure_openai_api_key,
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                azure_deployment=os.getenv("LLM"),
+                api_version="2024-05-01-preview",
+                model=os.getenv("LLM"),
+            )
+    else:
+        print("Use OpenAI API")
+        # Create the embedding model for OpenAI
+        model = ChatOpenAI(
+            model_name="gpt-4o-mini",
+            temperature=0.7,
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            max_tokens=150
+        )
+    return model

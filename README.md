@@ -76,11 +76,18 @@ If you are using Azure OpenAI you would need:
 AZURE_OPENAI_API_KEY=your-openai-api-key
 AZURE_OPENAI_ENDPOINT=your-azure-openai-endpoint(e.g. https://<resource-name>.openai.azure.com/)
 EMBEDDING=your-azure-embedding-deployment
+LLM=your-azure-llm-deployment
 
 QDRANT_URL=your-qdrant-url (e.g. http://localhost:6333)
 QDRANT_API_KEY=your-qdrant-api-key
 ```
 
+If you would like to add traceabilty through langfuse you will need
+
+```
+LANGFUSE_PUBLIC_KEY=your-langfuse-key
+LANGFUSE_HOST=your-langfuse-hostname
+```
 
 
 #### Step 5: Run the FastAPI Application
@@ -172,3 +179,14 @@ The ```utils.py``` file contains utility functions that handle core logic for pr
  - Ensure environment variables are properly set in your production environment for API keys.
  - Use a scalable deployment method like **Docker** or deploy to a cloud service like **AWS**, **Google Cloud**, or **Heroku**.
  - You can deploy Qdrant as a managed service or host your own instance, depending on your requirements.
+
+
+## QDrant installation
+
+Installation:
+sudo docker pull qdrant/qdrant
+
+Running the container:
+sudo docker run -p 6333:6333 \
+    -v /home/marcec/qdrant/data:/qdrant/storage \
+    qdrant/qdrant
