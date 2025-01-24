@@ -212,4 +212,8 @@ sudo docker exec -it <container_id_or_name> /bin/bash
 
 **Using docker compose**
 
-sudo docker compose watch
+    ```
+    {
+    sudo docker compose watch
+    }
+    ```
