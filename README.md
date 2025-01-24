@@ -195,25 +195,25 @@ sudo docker run -p 6333:6333 \
 ## Local Docker Deployment
 Steps to run fastapi-docgpt as docker container in local development.
 
-**Create container**
+```bash
+#**Create container**
 sudo docker build -t fastapi-backend -f docker/Dockerfile.service .
 
-**Run the container**
+#**Run the container**
 sudo docker run -it -p 7000:7000 fastapi-backend 
 
-**Debug container: log inside container**
-First check the container id using:
+#**Debug container: log inside container**
+#First check the container id using:
 
 sudo docker ps
 
-Second log inside the container with:
+#Second log inside the container with:
 sudo docker exec -it <container_id_or_name> /bin/bash
 
+```
 
 **Using docker compose**
 
-    ```
-    {
-    sudo docker compose watch
-    }
-    ```
+```bash
+sudo docker compose watch
+```
