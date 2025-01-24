@@ -183,14 +183,16 @@ The ```utils.py``` file contains utility functions that handle core logic for pr
 
 ## QDrant installation
 
-Installation:
+```bash
+#Installation:
 sudo docker pull qdrant/qdrant
 
-Running the container:
+#Running the container:
 sudo docker run -p 6333:6333 \
-    -v /home/marcec/qdrant/data:/qdrant/storage \
+    -v <host path>/qdrant/data:/qdrant/storage \
     qdrant/qdrant
 
+```
 
 ## Local Docker Deployment
 Steps to run fastapi-docgpt as docker container in local development.
