@@ -11,7 +11,7 @@ import logging
 from dotenv import load_dotenv, find_dotenv
 
 # Import the necessary functions from utils.py
-from utils import process_pdf, send_to_qdrant, qdrant_client, qa_ret, get_callback_handler, get_embedding_model
+from service.utils import process_pdf, send_to_qdrant, qdrant_client, qa_ret, get_callback_handler, get_embedding_model
 
 
 # Configure logging
@@ -27,7 +27,7 @@ session = {} # CHANGED TO SE flask_session instead, extention to handle server s
 agents = {}
 
 # Frontend URL
-FRONTEND_URL = os.getenv("FRONTEND_URL") 
+#FRONTEND_URL = os.getenv("FRONTEND_URL") 
 
 # Loading environment variables
 load_dotenv(find_dotenv())
@@ -36,7 +36,7 @@ load_dotenv(find_dotenv())
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", FRONTEND_URL],  # Allow requests from your React app (adjust domain if necessary)
+    #allow_origins=["http://localhost:3000", FRONTEND_URL],  # Allow requests from your React app (adjust domain if necessary)
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (POST, GET, etc.)
     allow_headers=["*"],  # Allow all headers

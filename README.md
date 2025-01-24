@@ -190,3 +190,21 @@ Running the container:
 sudo docker run -p 6333:6333 \
     -v /home/marcec/qdrant/data:/qdrant/storage \
     qdrant/qdrant
+
+
+## Local Docker Deployment
+Steps to run fastapi-docgpt as docker container in local development.
+
+**Create container**
+sudo docker build -t fastapi-backend .
+
+**Run the container**
+sudo docker run -it -p 8000:8000 fastapi-backend 
+
+**Debug container: log inside container**
+First check the container id using:
+
+sudo docker ps
+
+Second log inside the container with:
+sudo docker exec -it <container_id_or_name> /bin/bash
