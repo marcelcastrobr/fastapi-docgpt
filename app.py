@@ -11,7 +11,7 @@ import logging
 from dotenv import load_dotenv, find_dotenv
 
 # Import the necessary functions from utils.py
-from utils import process_pdf, send_to_qdrant, qdrant_client, qa_ret, get_callback_handler, get_embedding_model
+from utils import process_pdf, send_to_qdrant, qdrant_client, qa_ret, get_callback_handler, get_embedding_model, process_pdf_tables
 
 
 # Configure logging
@@ -73,6 +73,8 @@ async def upload_pdf(file: UploadFile = File(...)):
 
         # Process the PDF to get document chunks and embeddings
         document_chunks = process_pdf(temp_file_path)
+        # Process the PDF with tables to get document chunks and embeddings
+        #document_chunks = process_pdf_tables(temp_file_path)
 
         # Get the embedding model           
         embedding_model = get_embedding_model()

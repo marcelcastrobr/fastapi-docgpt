@@ -13,6 +13,10 @@ import logging
 import os
 from dotenv import load_dotenv
 from langfuse.callback import CallbackHandler
+from unstructured.staging.base import elements_from_base64_gzipped_json
+from langchain_community.document_loaders import UnstructuredPDFLoader
+
+
 
 
 
@@ -28,6 +32,46 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
+
+# Function to process PDF with tables and split it into chunks
+def process_pdf_tables(pdf_path):
+    """Process the PDF, split it into chunks, and return the chunks."""
+    #loader = PyPDFLoader(pdf_path)
+    loader = UnstructuredPDFLoader(pdf_path,  
+                               mode="elements", 
+                               strategy="hi_res",
+                               extract_image_block_types=["Image", "Table"],
+                               extract_image_block_to_payload = True, 
+                               chunking_strategy="by_title", 
+                               max_characters=4000,  
+                               new_after_n_chars=3800
+                               )
+    pages = loader.load()
+    document_text = "".join([page.page_content for page in pages])
+
+
+    #Add tables to the document text
+    tables = []
+    for doc in pages:
+        if 'orig_elements' in doc.metadata:
+            for orig_element in elements_from_base64_gzipped_json(doc.metadata["orig_elements"]):
+                if orig_element.category == "Table" :
+                    print(orig_element)
+                    tables.append(str(orig_element))
+    # Join all table elements into a single string
+    document_table = "\n".join(tables)
+    print(document_table)
+    
+    document_all = "\n".join([document_text, document_table])
+
+    # Split the document into chunks
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=2000,  # Adjust as needed
+        chunk_overlap=200  # Adjust as needed
+    )
+    chunks = text_splitter.create_documents([document_all])
+
+    return chunks
 
 # Function to process PDF and split it into chunks
 def process_pdf(pdf_path):
