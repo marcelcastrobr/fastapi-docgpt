@@ -20,6 +20,6 @@ pi_heif==0.21.0
 unstructured==0.15.13
 unstructured-client==0.25.9
 unstructured-inference==0.7.36
-unstructured.pytesseract==0.3.13
+#unstructured.pytesseract==0.3.13
 pycryptodome==3.21.0
 

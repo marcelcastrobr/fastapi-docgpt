@@ -72,9 +72,9 @@ async def upload_pdf(file: UploadFile = File(...)):
             temp_file_path = temp_file.name
 
         # Process the PDF to get document chunks and embeddings
-        document_chunks = process_pdf(temp_file_path)
+        #document_chunks = process_pdf(temp_file_path)
         # Process the PDF with tables to get document chunks and embeddings
-        #document_chunks = process_pdf_tables(temp_file_path)
+        document_chunks = process_pdf_tables(temp_file_path)
 
         # Get the embedding model           
         embedding_model = get_embedding_model()

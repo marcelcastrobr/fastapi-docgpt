@@ -181,21 +181,12 @@ The ```utils.py``` file contains utility functions that handle core logic for pr
  - You can deploy Qdrant as a managed service or host your own instance, depending on your requirements.
 
 
-## QDrant installation
-
-```bash
-#Installation:
-sudo docker pull qdrant/qdrant
-
-#Running the container:
-sudo docker run -p 6333:6333 \
-    -v <host path>/qdrant/data:/qdrant/storage \
-    qdrant/qdrant
-
-```
+# Running service and qdrant vectore as containers
 
 ## Local Docker Deployment
-Steps to run fastapi-docgpt as docker container in local development.
+Steps to run fastapi-docgpt and qdrant vectorire as docker containers in local development.
+ 
+### Fastapi-backend installation
 
 ```bash
 #**Create container**
@@ -214,7 +205,22 @@ sudo docker exec -it <container_id_or_name> /bin/bash
 
 ```
 
-**Using docker compose**
+### QDrant installation
+
+```bash
+#Installation:
+sudo docker pull qdrant/qdrant
+
+#Running the container:
+sudo docker run -p 6333:6333 \
+    -v <host path>/qdrant/data:/qdrant/storage \
+    qdrant/qdrant
+
+```
+
+## Docker Compose Deployment
+You can run both containers using docker compose. Ref. compose.yml file for implementation.
+Run the command below to get both container running as docker-compose.
 
 ```bash
 sudo docker compose watch

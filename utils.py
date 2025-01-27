@@ -52,12 +52,12 @@ def process_pdf_tables(pdf_path):
 
     #Add tables to the document text
     tables = []
-    for doc in pages:
-        if 'orig_elements' in doc.metadata:
-            for orig_element in elements_from_base64_gzipped_json(doc.metadata["orig_elements"]):
-                if orig_element.category == "Table" :
-                    print(orig_element)
-                    tables.append(str(orig_element))
+    # for doc in pages:
+    #     if 'orig_elements' in doc.metadata:
+    #         for orig_element in elements_from_base64_gzipped_json(doc.metadata["orig_elements"]):
+    #             if orig_element.category == "Table" :
+    #                 print(orig_element)
+    #                 tables.append(str(orig_element))
     # Join all table elements into a single string
     document_table = "\n".join(tables)
     print(document_table)
